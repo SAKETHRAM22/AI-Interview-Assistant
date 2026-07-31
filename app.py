@@ -38,6 +38,7 @@ def initialize_state() -> None:
         "nav_mode": "AI Interview Assistant",
         "assistant_topic": "SQL",
         "assistant_open": False,
+        "chat_started": False,
         "messages": [],
         "pending_question": None,
         "interview": None,
@@ -100,6 +101,7 @@ def sidebar() -> None:
         st.caption(f"{st.session_state.conversation_count} assistant conversations")
         if st.button("Clear assistant chat", use_container_width=True):
             st.session_state.assistant_open = False
+            st.session_state.chat_started = False
             st.session_state.messages = []
             st.session_state.conversation_count = 0
             clear_session_history("assistant_chat")
@@ -171,6 +173,7 @@ def landing_section() -> None:
         first, second = st.columns(2)
         if first.button("Ask the assistant", type="primary", use_container_width=True):
             st.session_state.assistant_open = True
+            st.session_state.chat_started = True
             st.rerun()
         if second.button("Start mock interview", use_container_width=True):
             switch_mode("AI Mock Interview")
@@ -196,30 +199,62 @@ def assistant_page() -> None:
         "<div class='page-kicker'>KNOWLEDGE ASSISTANT</div><h2 class='page-title'>Interview questions, answered clearly.</h2>",
         unsafe_allow_html=True,
     )
-    topic = select_topic("Choose your interview focus", "assistant_topic", st.session_state.assistant_topic)
+
+    topic = select_topic(
+        "Choose your interview focus",
+        "assistant_topic",
+        st.session_state.assistant_topic,
+    )
+
     st.caption(f"Answers will be tailored for **{topic}** interview preparation.")
-    if not st.session_state.messages and not st.session_state.assistant_open:
+
+    if not st.session_state.messages and not st.session_state.chat_started:
         landing_section()
-        st.markdown("<div class='section-title'>Suggested starting points</div>", unsafe_allow_html=True)
+
+        st.markdown(
+            "<div class='section-title'>Suggested starting points</div>",
+            unsafe_allow_html=True,
+        )
+
         for row in (QUICK_QUESTIONS[:2], QUICK_QUESTIONS[2:]):
-            row_columns = st.columns(2)
-            for column, prompt in zip(row_columns, row):
-                if column.button(prompt, use_container_width=True):
+            cols = st.columns(2)
+            for col, prompt in zip(cols, row):
+                if col.button(prompt, use_container_width=True):
                     st.session_state.pending_question = prompt
+                    st.session_state.chat_started = True
                     st.rerun()
+
     for message in st.session_state.messages:
-        with st.chat_message(message["role"], avatar="🧑‍💻" if message["role"] == "user" else "✦"):
+        with st.chat_message(
+            message["role"],
+            avatar="🧑‍💻" if message["role"] == "user" else "🤖",
+        ):
             st.markdown(message["content"])
-    question = st.chat_input("Ask an interview question…") or st.session_state.pop("pending_question", None)
+
+    pending = st.session_state.pop("pending_question", None)
+    question = None
+
+    if st.session_state.chat_started:
+        question = st.chat_input("Ask an interview question…")
+
+    if pending:
+        question = pending
+
     if question:
+        st.session_state.chat_started = True
         st.session_state.messages.append({"role": "user", "content": question})
+
         with st.chat_message("user", avatar="🧑‍💻"):
             st.markdown(question)
-        with st.chat_message("assistant", avatar="🧑‍💻"):
+
+        with st.chat_message("assistant", avatar="🤖"):
             with st.spinner("Thinking through this…"):
                 answer = invoke_rag(question, topic)
             st.markdown(answer)
-        st.session_state.messages.append({"role": "assistant", "content": answer})
+
+        st.session_state.messages.append(
+            {"role": "assistant", "content": answer}
+        )
         st.session_state.conversation_count += 1
 
 
