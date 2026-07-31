@@ -208,7 +208,7 @@ def assistant_page() -> None:
     for message in st.session_state.messages:
         with st.chat_message(message["role"], avatar="🧑‍💻" if message["role"] == "user" else "🧑‍💻"):
             st.markdown(message["content"])
-    question = st.chat_input("Ask an interview question…") or st.session_state.pop("pending_question", None)
+    #question = st.chat_input("Ask an interview question…") or st.session_state.pop("pending_question", None)
     if question:
         st.session_state.messages.append({"role": "user", "content": question})
         with st.chat_message("user", avatar="🧑‍💻"):
