@@ -37,6 +37,7 @@ def initialize_state() -> None:
         "mode": "AI Interview Assistant",
         "nav_mode": "AI Interview Assistant",
         "assistant_topic": "SQL",
+        "assistant_open": False,
         "messages": [],
         "pending_question": None,
         "interview": None,
@@ -98,6 +99,7 @@ def sidebar() -> None:
         st.markdown("<div class='ready-badge'>● SYSTEM READY</div>", unsafe_allow_html=True)
         st.caption(f"{st.session_state.conversation_count} assistant conversations")
         if st.button("Clear assistant chat", use_container_width=True):
+            st.session_state.assistant_open = False
             st.session_state.messages = []
             st.session_state.conversation_count = 0
             clear_session_history("assistant_chat")
@@ -168,7 +170,7 @@ def landing_section() -> None:
         )
         first, second = st.columns(2)
         if first.button("Ask the assistant", type="primary", use_container_width=True):
-            st.session_state.pending_question = "Help me prepare for my next interview."
+            st.session_state.assistant_open = True
             st.rerun()
         if second.button("Start mock interview", use_container_width=True):
             switch_mode("AI Mock Interview")
@@ -196,7 +198,7 @@ def assistant_page() -> None:
     )
     topic = select_topic("Choose your interview focus", "assistant_topic", st.session_state.assistant_topic)
     st.caption(f"Answers will be tailored for **{topic}** interview preparation.")
-    if not st.session_state.messages:
+    if not st.session_state.messages and not st.session_state.assistant_open:
         landing_section()
         st.markdown("<div class='section-title'>Suggested starting points</div>", unsafe_allow_html=True)
         for row in (QUICK_QUESTIONS[:2], QUICK_QUESTIONS[2:]):
@@ -425,4 +427,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
