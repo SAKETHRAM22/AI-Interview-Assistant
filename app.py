@@ -206,14 +206,14 @@ def assistant_page() -> None:
                     st.session_state.pending_question = prompt
                     st.rerun()
     for message in st.session_state.messages:
-        with st.chat_message(message["role"], avatar="🧑‍💻" if message["role"] == "user" else "✦"):
+        with st.chat_message(message["role"], avatar="🧑‍💻" if message["role"] == "user" else "🧑‍💻"):
             st.markdown(message["content"])
     question = st.chat_input("Ask an interview question…") or st.session_state.pop("pending_question", None)
     if question:
         st.session_state.messages.append({"role": "user", "content": question})
         with st.chat_message("user", avatar="🧑‍💻"):
             st.markdown(question)
-        with st.chat_message("assistant", avatar="✦"):
+        with st.chat_message("assistant", avatar="🧑‍💻"):
             with st.spinner("Thinking through this…"):
                 answer = invoke_rag(question, topic)
             st.markdown(answer)
@@ -412,7 +412,7 @@ def mock_interview_page() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Interview Studio", page_icon="✦", layout="wide", initial_sidebar_state="expanded")
+    st.set_page_config(page_title="Interview Studio", page_icon="🧑‍💻", layout="wide", initial_sidebar_state="expanded")
     initialize_state()
     inject_styles(st)
     sidebar()
