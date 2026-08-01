@@ -207,7 +207,6 @@ def assistant_page() -> None:
     )
 
     st.caption(f"Answers will be tailored for **{topic}** interview preparation.")
-
     if not st.session_state.messages and not st.session_state.chat_started:
         landing_section()
 
@@ -241,22 +240,23 @@ def assistant_page() -> None:
         question = pending
 
     if question:
-        st.session_state.chat_started = True
-        st.session_state.messages.append({"role": "user", "content": question})
+     st.session_state.chat_started = True
+     st.session_state.messages.append(
+        {"role": "user", "content": question}
+    )
 
-        with st.chat_message("user", avatar="🧑‍💻"):
-            st.markdown(question)
+    with st.chat_message("user", avatar="🧑‍💻"):
+        st.markdown(question)
 
-        with st.chat_message("assistant", avatar="🤖"):
-            with st.spinner("Thinking through this…"):
-                answer = invoke_rag(question, topic)
-            st.markdown(answer)
+    with st.chat_message("assistant", avatar="🤖"):
+        with st.spinner("Thinking through this…"):
+            answer = invoke_rag(question, topic)
+        st.markdown(answer)
 
-        st.session_state.messages.append(
-            {"role": "assistant", "content": answer}
-        )
-        st.session_state.conversation_count += 1
-
+    st.session_state.messages.append(
+        {"role": "assistant", "content": answer}
+    )
+    st.session_state.conversation_count += 1
 
 def transcript(interview: dict) -> str:
     return "\n\n".join(
