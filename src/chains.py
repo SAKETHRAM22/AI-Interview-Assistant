@@ -3,7 +3,7 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from operator import itemgetter
 
-from src.retriever import get_retriever
+from src.retriever import get_relevant_documents
 from src.prompt import get_prompt
 from src.largelanguagemodel import get_llm
 from src.memory import get_session_history
@@ -21,9 +21,12 @@ def get_rag_chain(chunks=None):
     Create and return the conversational RAG chain.
     """
 
-    retriever = get_retriever(chunks)
     prompt = get_prompt()
     llm = get_llm()
+
+    def retrieve_context(question: str) -> str:
+        documents = get_relevant_documents(question, chunks)
+        return format_docs(documents)
 
     # ``RunnableWithMessageHistory`` adds ``chat_history`` to the input dict.
     # ``assign`` preserves that key (and ``question``) while adding the RAG
@@ -31,7 +34,7 @@ def get_rag_chain(chunks=None):
     # passing the full input dict to the retriever.
     rag_chain = (
         RunnablePassthrough.assign(
-            context=itemgetter("question") | retriever | format_docs,
+            context=itemgetter("question") | retrieve_context,
         )
         | prompt
         | llm
