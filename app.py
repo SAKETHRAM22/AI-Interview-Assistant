@@ -151,12 +151,6 @@ def invoke_rag(question: str, topic: str) -> str:
     Send a topic-aware question through the conversational RAG chain.
     """
 
-    query = (
-        f"The candidate is preparing for {topic} interviews. "
-        f"Keep the response focused on {topic} interview preparation.\n\n"
-        f"Question: {question}"
-    )
-
     try:
         with st.status("Preparing your answer…", expanded=True) as status:
 
@@ -164,7 +158,8 @@ def invoke_rag(question: str, topic: str) -> str:
 
             answer = load_rag_chain().invoke(
                 {
-                    "question": query
+                    "question": question,
+                    "topic": topic,
                 },
                 config={
                     "configurable": {
@@ -290,7 +285,8 @@ def assistant_page() -> None:
             {"role": "assistant", "content": answer}
         )
         st.session_state.conversation_count += 1
-        scroll_to_latest_chat()
+        if st.session_state.conversation_count > 1:
+            scroll_to_latest_chat()
 
 def transcript(interview: dict) -> str:
     return "\n\n".join(

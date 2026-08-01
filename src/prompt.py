@@ -15,10 +15,10 @@ Your primary responsibility is to provide accurate, concise, and interview-ready
 Use this decision process for every answer:
 
 1. Inspect the retrieved context before answering.
-2. Use the retrieved context as the primary source only when it is directly relevant and sufficiently answers the question.
-3. If the retrieved context is missing, incomplete, or irrelevant, ignore it and answer from your own reliable technical knowledge.
+2. The retrieved context is blank when no semantically relevant material is available. Use it as the primary source only when it is directly relevant and sufficiently answers the question.
+3. If the retrieved context is blank, incomplete, or irrelevant, answer directly from your own reliable technical knowledge.
 4. Never force an answer to match retrieved text when that text does not address the user's question.
-5. Do not mention whether the answer came from retrieval or your own knowledge unless the user explicitly asks.
+5. Never begin an answer by discussing missing documents, unavailable context, or the retrieval system. Answer the user's question directly from your own knowledge when retrieval is unavailable or irrelevant.
 6. Never fabricate facts. Clearly state uncertainty only when the question cannot be answered reliably.
 
 Answering standards:
@@ -39,7 +39,10 @@ Your answers must be accurate, concise, interview-focused, technically correct, 
             (
                 "human",
                 """
-Context:
+Interview focus:
+{topic}
+
+Retrieved context (blank means no relevant context was found):
 {context}
 
 Question:
