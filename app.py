@@ -239,6 +239,11 @@ def assistant_page() -> None:
     if pending:
         question = pending
 
+    if not question or not question.strip():
+        return
+
+    question = question.strip()
+
     if question:
      st.session_state.chat_started = True
      st.session_state.messages.append(
