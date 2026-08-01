@@ -9,6 +9,7 @@ import re
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from src.chains import get_rag_chain
 from src.config import EMBEDDING_MODEL, LLM_MODEL
@@ -20,7 +21,7 @@ APP_DIR = Path(__file__).resolve().parent
 HERO_IMAGE = APP_DIR / "assets" / "interview-hero.png"
 TOPICS = [
     "SQL", "Python", "Machine Learning", "Deep Learning", "Data Science",
-    "Generative AI", "NLP", "Computer Vision", "Statistics", "HR",
+    "Generative AI", "NLP", "Computer Vision", "Data Structures and Algorithms (DSA)", "Statistics", "HR",
     "Behavioral", "Company Specific",
 ]
 QUICK_QUESTIONS = [
@@ -58,6 +59,33 @@ def load_rag_chain():
 def load_llm():
     """Reuse the existing project-configured Groq model."""
     return get_llm()
+
+
+def scroll_to_latest_chat() -> None:
+    """Scroll the Streamlit page to the newest assistant exchange."""
+    components.html(
+        """
+        <script>
+        const scrollToLatestChat = () => {
+            const parentDocument = window.parent.document;
+            const chatInput = parentDocument.querySelector('[data-testid="stChatInput"]');
+
+            if (chatInput) {
+                chatInput.scrollIntoView({ behavior: "smooth", block: "end" });
+            } else {
+                window.parent.scrollTo({
+                    top: parentDocument.documentElement.scrollHeight,
+                    behavior: "smooth",
+                });
+            }
+        };
+
+        window.setTimeout(scrollToLatestChat, 100);
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
 
 
 def select_topic(label: str, key: str, default: str = "SQL") -> str:
@@ -258,10 +286,11 @@ def assistant_page() -> None:
             answer = invoke_rag(question, topic)
         st.markdown(answer)
 
-    st.session_state.messages.append(
-        {"role": "assistant", "content": answer}
-    )
-    st.session_state.conversation_count += 1
+        st.session_state.messages.append(
+            {"role": "assistant", "content": answer}
+        )
+        st.session_state.conversation_count += 1
+        scroll_to_latest_chat()
 
 def transcript(interview: dict) -> str:
     return "\n\n".join(
